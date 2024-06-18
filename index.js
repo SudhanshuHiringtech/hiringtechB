@@ -2,9 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 const passport = require('passport');
-const cookieSession = require('cookie-session');
+const session = require('cookie-session');
 // require('./config/passport-setup');
-const session = require('express-session');
+//const session = require('express-session');
 const bodyParser = require('body-parser');
 const app = express();
 const connectDB = require('./db');
@@ -29,7 +29,6 @@ connectDB();
 
 // // Set up view engine
 // app.set('view engine', 'ejs');
-
 app.use(session({
   secret: process.env.SESSION_SECRET || 'sector123',
   resave: false,
