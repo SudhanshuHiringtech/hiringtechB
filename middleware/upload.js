@@ -1,11 +1,23 @@
+// 
 // middleware/upload.js
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
+
+// Set upload directory, use /tmp for serverless environments
+const uploadDirectory = process.env.UPLOAD_DIRECTORY || '/tmp/uploads';
+
+// Ensure the directory exists
+if (!fs.existsSync(uploadDirectory)) {
+    fs.mkdirSync(uploadDirectory, { recursive: true });
+}
 
 // Set storage engine
 const storage = multer.diskStorage({
-    destination: '../uploads',
+    destination: function(req, file, cb) {
+        cb(null, uploadDirectory);
+    },
     filename: function(req, file, cb) {
         cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
     }
