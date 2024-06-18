@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const passport = require('passport');
 const cookieSession = require('cookie-session');
-require('./config/passport-setup');
+// require('./config/passport-setup');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const app = express();
@@ -27,8 +27,8 @@ connectDB();
 
 // Middleware to parse JSON
 
-// Set up view engine
-app.set('view engine', 'ejs');
+// // Set up view engine
+// app.set('view engine', 'ejs');
 
 app.use(session({
   secret: process.env.SESSION_SECRET || 'sector123',
@@ -38,8 +38,8 @@ app.use(session({
 }));
 
 
-app.use(passport.initialize());
-app.use(passport.session());
+// app.use(passport.initialize());
+// app.use(passport.session());
 // Configure session middleware
 
 
@@ -47,7 +47,7 @@ app.use(express.json({ extended: false }));
 app.use(bodyParser.json());
 
 //app.use('/auth', require('./routes/authRoutes'));
-app.use('/profile', require('./routes/profile-routes'));
+//app.use('/profile', require('./routes/profile-routes'));
 app.use(authRoutes);
 app.use(profileRoutes);
 app.use(jobPostRoutes);
