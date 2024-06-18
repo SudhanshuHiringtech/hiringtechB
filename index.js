@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const passport = require('passport');
 const session = require('cookie-session');
-// require('./config/passport-setup');
+require('./config/passport-setup');
 //const session = require('express-session');
 const bodyParser = require('body-parser');
 const app = express();
@@ -28,7 +28,7 @@ connectDB();
 // Middleware to parse JSON
 
 // // Set up view engine
-// app.set('view engine', 'ejs');
+app.set('view engine', 'ejs');
 app.use(session({
   secret: process.env.SESSION_SECRET || 'sector123',
   resave: false,
