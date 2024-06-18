@@ -1,6 +1,7 @@
 // middleware/upload.js
 const multer = require('multer');
 const path = require('path');
+require('dotenv').config();
 
 // Set storage engine
 const storage = multer.diskStorage({

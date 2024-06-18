@@ -1,12 +1,16 @@
-require('dotenv').config();
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const mongoose = require('mongoose');
 const User = require('../model/User');
+require('dotenv').config(); // Ensure this is at the top
+
+// Log the environment variables to debug
+console.log("GOOGLE_CLIENT_ID: ", process.env.GOOGLE_CLIENT_ID);
+console.log("GOOGLE_CLIENT_SECRET: ", process.env.GOOGLE_CLIENT_SECRET);
 
 passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    clientID: process.env.GOOGLE_CLIENT_ID, // Ensure these are correct
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET, // Ensure these are correct
     callbackURL: '/auth/google/redirect'
 }, async (accessToken, refreshToken, profile, done) => {
     try {
