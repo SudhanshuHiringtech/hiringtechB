@@ -22,7 +22,8 @@ const notificationRoutes =  require('./routes/notificationRoutes');
 
 const server = http.createServer(app);
 const io = socketIo(server);
-
+const cors = require('cors');
+app.use(cors());
 
 connectDB();
 
