@@ -2,14 +2,15 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 const passport = require('passport');
-const session = require('cookie-session');
+//const session = require('cookie-session');
 require('./config/passport-setup');
-//const session = require('express-session');
+const session = require('express-session');
 const bodyParser = require('body-parser');
 const app = express();
 const connectDB = require('./db');
 const http = require('http');
 const socketIo = require('socket.io');
+const path = require('path'); 
 require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
@@ -28,7 +29,7 @@ connectDB();
 // Middleware to parse JSON
 
 // // Set up view engine
-app.set('view engine', 'ejs');
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'sector123',
   resave: false,
@@ -37,16 +38,19 @@ app.use(session({
 }));
 
 
-// app.use(passport.initialize());
-// app.use(passport.session());
-// Configure session middleware
 
+app.set("view engine", "ejs");
+
+// Set the directory where the view files are located
+app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.json({ extended: false }));
 app.use(bodyParser.json());
 
 //app.use('/auth', require('./routes/authRoutes'));
-//app.use('/profile', require('./routes/profile-routes'));
+app.use('/', require('./routes/googleOuthRoutes'));
+
+
 app.use(authRoutes);
 app.use(profileRoutes);
 app.use(jobPostRoutes);
@@ -71,9 +75,7 @@ io.on('connection', (socket) => {
     });
 });
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
-});
+
 
 
 

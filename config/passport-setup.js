@@ -1,43 +1,77 @@
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const mongoose = require('mongoose');
-const User = require('../model/User');
-require('dotenv').config(); // Ensure this is at the top
+// const passport = require('passport'); 
+// const GoogleStrategy = require('passport-google-oauth2').Strategy; 
+// require('dotenv').config();
 
-// Log the environment variables to debug
-console.log("GOOGLE_CLIENT_ID: ", process.env.GOOGLE_CLIENT_ID);
-console.log("GOOGLE_CLIENT_SECRET: ", process.env.GOOGLE_CLIENT_SECRET);
+// passport.serializeUser((user , done) => { 
+// 	done(null , user); 
+// }) 
+// passport.deserializeUser(function(user, done) { 
+// 	done(null, user); 
+// }); 
 
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID, // Ensure these are correct
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET, // Ensure these are correct
-    callbackURL: '/auth/google/redirect'
-}, async (accessToken, refreshToken, profile, done) => {
+// console.log("google", process.env.GOOGLE_CLIENT_ID);
+// passport.use(new GoogleStrategy({ 
+// 	clientID:process.env.GOOGLE_CLIENT_ID, // Your Credentials here. 
+// 	clientSecret:process.env.GOOGLE_CLIENT_SECRET, // Your Credentials here. 
+// 	callbackURL:"http://localhost:5000/auth/google/callback", 
+// 	passReqToCallback:true
+// }, 
+// function(request, accessToken, refreshToken, profile, done) { 
+// 	return done(null, profile); 
+// } 
+// ));
+
+
+const passport = require('passport'); 
+const GoogleStrategy = require('passport-google-oauth2').Strategy; 
+require('dotenv').config();
+const User = require('../model/User'); // Make sure to require your user model
+
+passport.serializeUser((user, done) => { 
+    done(null, user.id); // Serialize user by ID
+}); 
+
+passport.deserializeUser((id, done) => { 
+    User.findById(id, (err, user) => {
+        done(err, user); // Deserialize user by finding them in the database
+    });
+}); 
+
+console.log("google", process.env.GOOGLE_CLIENT_ID);
+passport.use(new GoogleStrategy({ 
+    clientID: process.env.GOOGLE_CLIENT_ID, 
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET, 
+    callbackURL: "http://localhost:5000/auth/google/callback", 
+    passReqToCallback: true
+}, 
+async function(request, accessToken, refreshToken, profile, done) { 
+    // Log the profile to check the structure
+    console.log("profile", profile);
+
     try {
-        let existingUser = await User.findOne({ googleId: profile.id });
-        if (existingUser) {
-            return done(null, existingUser);
+        // Check if the user already exists in the database
+       // let user = await User.findOne({ googleId: profile.id });
+       let user = await User.findOne({ email: profile.emails[0].value });
+        if (user) {
+            user = await User.findOne({ email: profile.emails[0].value });
+            if (user) {
+                user.email = profile.emails[0].value;
+              console.log(user.email, " Helloe", profile.emails[0].value)
+               return done(null, user);
+            }
+        else {
+            // If user doesn't exist, create a new user
+            user = new User({
+                googleId: profile.id,
+                email: profile.emails[0].value, // Access email from profile
+                name: profile.displayName,
+                imageUrl: profile.photos[0].value
+            });
+            await user.save();
+            return done(null, user);
         }
-
-        const newUser = await new User({
-            googleId: profile.id,
-            name: profile.displayName,
-            thumbnail: profile.photos[0].value,
-            email: profile.emails[0].value // Assuming emails is not empty and contains the user's email
-        }).save();
-
-        done(null, newUser);
+    }
     } catch (error) {
-        done(error, false);
+        return done(error, null);
     }
 }));
-
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
-
-passport.deserializeUser((id, done) => {
-    User.findById(id).then((user) => {
-        done(null, user);
-    });
-});

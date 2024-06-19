@@ -41,17 +41,21 @@ const Getalljobs = async (req, res) => {
 router.get('/getalljobs', Getalljobs);
 
 
-// GET API to fetch jobs a candidate has applied to
+
 router.get('/appliedjobs/:candidateId', async (req, res) => {
   try {
-    const candidateId = req.params.candidateId;
+    const { candidateId } = req.params;
 
-    // Find jobs where the candidate has applied
-    const jobs = await JobPost.find({ applications: candidateId });
+    // Find applications by candidateId
+    const applications = await Application.find({ candidateId }).populate('jobPost');
 
-    res.json(jobs);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    // Extract job posts from applications
+    const jobPosts = applications.map(app => app.jobPost);
+
+    res.status(200).json(jobPosts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

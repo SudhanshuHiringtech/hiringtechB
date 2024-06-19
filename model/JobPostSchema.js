@@ -22,6 +22,7 @@ const jobPostSchema = new mongoose.Schema({
 const candidateApplicationSchema = new mongoose.Schema({
   jobPost: { type: mongoose.Schema.Types.ObjectId, ref: 'JobPost', required: true },
   candidateName: { type: String, required: true },
+  candidateId : {type: mongoose.Schema.Types.ObjectId, required: true},
   candidateEmail: { type: String, required: true },
   resume: { type: String, required: true }, // URL or path to the resume file
   coverLetter: { type: String },

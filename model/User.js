@@ -78,8 +78,11 @@ const ExperienceSchema = new mongoose.Schema({
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    //required: true
   },
+  imageUrl: {
+    type: String
+},
   googleId:{
     type : String
   },
@@ -94,19 +97,19 @@ const UserSchema = new mongoose.Schema({
   },
   mobileNumber: {
     type: String,
-    required: true,
+   // required: true,
   },
   userdesignation :{
     type : String
   },
   email: {
     type: String,
-    required: true,
+   // required: true,
     unique: true
   },
   password: {
     type: String,
-    required: true
+   // required: true
   },
   otp: {
     type: Number,
@@ -127,7 +130,7 @@ const UserSchema = new mongoose.Schema({
   },
   totalExperience :{
     type : String,
-    required : true
+   // required : true
   },
   education: [EducationSchema],
   skills: [SkillSchema],
