@@ -23,6 +23,7 @@ const notificationRoutes =  require('./routes/notificationRoutes');
 const server = http.createServer(app);
 const io = socketIo(server);
 const cors = require('cors');
+const MemoryStore = require('memorystore')(session)
 app.use(cors());
 
 connectDB();
@@ -34,6 +35,9 @@ connectDB();
 app.use(session({
   secret: process.env.SESSION_SECRET || 'sector123',
   resave: false,
+  store: new MemoryStore({
+    checkPeriod: 86400000 // prune expired entries every 24h
+  }),
   saveUninitialized: true,
   cookie: { secure: true } // Set to true if using https
 }));
