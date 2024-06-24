@@ -130,7 +130,7 @@ const verifyOTP = async (req, res) => {
     user.otp = undefined; // Clear the OTP
     await user.save();
 
-    res.status(200).json({ msg: 'Email verified successfully' });
+    res.status(200).json({ msg: 'Email verified successfully', user });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
@@ -178,7 +178,7 @@ const loginUser = async (req, res) => {
           console.error('JWT sign error:', err.message);
           return res.status(500).json({ msg: 'Server error' });
         }
-        res.json({ token });
+        res.json({ token, user });
       }
     );
 
