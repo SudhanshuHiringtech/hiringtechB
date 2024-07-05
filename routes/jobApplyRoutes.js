@@ -9,6 +9,7 @@ router.post('/apply-job', async (req, res) => {
     await application.save();
     await JobPost.findByIdAndUpdate(application.jobPost, { $push: { applications: application._id } });
     res.status(201).send(application);
+    console.log(application)
   } catch (error) {
     res.status(400).send(error);
   }
@@ -36,6 +37,24 @@ const Getalljobs = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 }
+
+router.get('/jobs/internship', async (req, res) => {
+  try {
+    const internships = await JobPost.find({ jobType: 'Internship' });
+    res.json(internships);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.get('/jobs/fulltime', async (req, res) => {
+  try {
+    const internships = await JobPost.find({ jobType: 'fulltime' });
+    res.json(internships);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 
 router.get('/getalljobs', Getalljobs);

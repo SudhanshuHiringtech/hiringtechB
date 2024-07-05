@@ -26,7 +26,7 @@ const EducationSchema = new mongoose.Schema({
   grade: {
       type: String
   },
-  activities: {
+  Percentage: {
     type: String
 }
 });
@@ -54,19 +54,11 @@ const LanguageSchema = new mongoose.Schema({
   }
 });
 
-// Certification Schema
-const CertificationSchema = new mongoose.Schema({
-  name: {
-      type: String,
-  },
-  url: {
-    type :String
-  }
- });
 
  // Experience Schema
 const ExperienceSchema = new mongoose.Schema({
-  title: { type: String},
+  designation: { type: String},
+  workMode: { type: String},
   company: { type: String, required: true },
   location: { type: String, required: true },
   startDate: { type: Date, required: true },
@@ -76,13 +68,15 @@ const ExperienceSchema = new mongoose.Schema({
 
 
 const UserSchema = new mongoose.Schema({
-  name: {
+  firstName: {
     type: String,
-    //required: true
   },
-  imageUrl: {
-    type: String
-},
+  lastName: {
+    type: String,
+  },
+  profileImage: {
+    type: String, // Store the path to the uploaded image
+  },
   googleId:{
     type : String
   },
@@ -135,11 +129,13 @@ const UserSchema = new mongoose.Schema({
   education: [EducationSchema],
   skills: [SkillSchema],
   languages: [LanguageSchema],
-  certifications: [CertificationSchema],
   experience: [ExperienceSchema],
   resume: {
     type: String,
 },
+  certifications: {
+     type: String,
+  },
 });
 
 // Encrypt password before saving

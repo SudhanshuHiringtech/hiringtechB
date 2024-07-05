@@ -26,15 +26,26 @@ const storage = multer.diskStorage({
 // Init upload
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 1000000 }, // Limit file size to 1MB
+    limits: { fileSize: 5000000 }, // Limit file size to 1MB
     fileFilter: function(req, file, cb) {
         checkFileType(file, cb);
     }
-}).single('resume');
+}).single('file');
+
+const uploadCertAndResume = multer({
+    storage: storage,
+    limits: { fileSize: 5000000 }, // Limit file size to 5MB
+    fileFilter: function(req, file, cb) {
+        checkFileType(file, cb);
+    }
+}).fields([
+    { name: 'certification', maxCount: 1 },
+    { name: 'resume', maxCount: 1 }
+]);
 
 // Check file type
 function checkFileType(file, cb) {
-    const filetypes = /pdf|doc|docx/;
+    const filetypes = /jpeg|jpg|png|pdf|doc|docx/;
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
     const mimetype = filetypes.test(file.mimetype);
 
@@ -45,4 +56,4 @@ function checkFileType(file, cb) {
     }
 }
 
-module.exports = upload;
+module.exports = {upload, uploadCertAndResume};

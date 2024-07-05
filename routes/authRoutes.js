@@ -10,7 +10,7 @@ const router = express.Router();
 
 // Generate OTP
 const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  return Math.floor(1000 + Math.random() * 9000).toString();
 };
 
 // Send OTP Email
@@ -204,6 +204,24 @@ const GetallUsers = async (req, res) => {
   }
 }
 
+const profileDetail = async (req, res) => {
+  const { email} = req.body;
+ 
+  try {
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ msg: 'Invalid credentials' });
+    }
+
+    res.status(200).json({ msg: 'Email successfully', user });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+};
+
+router.post('/updateprofile', profileDetail);
 router.get('/getallusers', GetallUsers);
 
 // Routes

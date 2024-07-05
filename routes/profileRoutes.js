@@ -6,34 +6,37 @@ const { check, validationResult } = require('express-validator');
 const User = require('../model/User');
 const nodemailer = require('nodemailer');
 const auth =  require('../routes/authRoutes');
-const upload = require('../middleware/upload');
+const {upload, uploadCertAndResume} = require('../middleware/upload');
+const path = require('path');
+const fs = require('fs');
 
 const router = express.Router();
 
 
 const personalDetail = async (req, res) => {
     console.log("Hello")
-    const {id, name, email, mobileNumber, gender, currentLocation, DOB, totalExperience} = req.body;
-    
+    const { id, name, email, mobileNumber, gender, currentLocation, DOB, totalExperience } = req.body;
+  
     try {
-        const user = await User.findById(id); // Assuming req.user contains the authenticated user's ID
-
-        if (!user) {
-            return res.status(404).json({ msg: 'User not found' });
-        }
-
-        // Update the fields if they are provided
-        if (name) user.name = name;
-        if (email) user.email = email;
-        if (mobileNumber) user.mobileNumber = mobileNumber;
-        if (gender) user.gender = gender;
-        if (currentLocation) user.currentLocation = currentLocation;
-        if (DOB) user.DOB = DOB;
-        if ( totalExperience) user.totalExperience =  totalExperience;
-
-        await user.save();
-
-        res.json({ msg: 'Personal details updated successfully', user });
+      const user = await User.findById(id);
+  
+      if (!user) {
+        return res.status(404).json({ msg: 'User not found' });
+      }
+  
+      // Update the fields if they are provided
+      if (name) user.name = name;
+      if (email) user.email = email;
+      if (mobileNumber) user.mobileNumber = mobileNumber;
+      if (gender) user.gender = gender;
+      if (currentLocation) user.currentLocation = currentLocation;
+      if (DOB) user.DOB = DOB;
+      if (totalExperience) user.totalExperience = totalExperience;
+      if (req.file) user.profileImage = req.file.path; // Save the file path
+  
+      await user.save();
+  
+      res.json({ msg: 'Personal details updated successfully', user });
     } catch (error) {
         console.error(error.message);
         res.status(500).send('Server error');
@@ -118,27 +121,7 @@ const updateLanguages = async (req, res) => {
     }
 };
 
-// Function to update certifications
-const updateCertifications = async (req, res) => {
-    const { id, certifications } = req.body;
 
-    try {
-        const user = await User.findById(id);
-
-        if (!user) {
-            return res.status(404).json({ msg: 'User not found' });
-        }
-
-        user.certifications = certifications;
-
-        await user.save();
-
-        res.json({ msg: 'Certifications updated successfully', certifications: user.certifications });
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).send('Server error');
-    }
-};
 
 
 
@@ -173,48 +156,63 @@ const updateExperience = async (req, res) => {
 
 
 // Function to upload resume
-const uploadResume = async (req, res) => {
-    const {id} = req.body;
-
+const uploadFiles = async (req, res) => {
+    const { id } = req.body;
+  
     try {
-        const user = await User.findById(id);
-
-        if (!user) {
-            return res.status(404).json({ msg: 'User not found' });
-        }
-
-        // Save resume URL to user's profile
-        user.resume = req.file.path;
-        await user.save();
-
-        res.json({ msg: 'Resume uploaded successfully', resume: user.resume });
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).send('Server error');
+      const user = await User.findById(id);
+  
+      if (!user) {
+        return res.status(404).json({ msg: 'User not found' });
+      }
+  
+      if (req.files.certification) {
+        const certificationFile = req.files.certification[0];
+        const certificationDir = path.dirname(certificationFile.path);
+        const certificationPath = path.join(certificationDir, certificationFile.originalname);
+        fs.renameSync(certificationFile.path, certificationPath);
+        user.certifications = certificationPath;
     }
-};
 
-// @route   POST /profile/upload-resume
-// @desc    Upload resume
-// @access  Private
-router.post('/upload-resume', (req, res) => {
-    upload(req, res, async (err) => {
+    if (req.files.resume) {
+        const resumeFile = req.files.resume[0];
+        const resumeDir = path.dirname(resumeFile.path);
+        const resumePath = path.join(resumeDir, resumeFile.originalname);
+        fs.renameSync(resumeFile.path, resumePath);
+        user.resume = resumePath;
+    }
+      await user.save();
+  
+      res.json({ 
+        msg: 'Files uploaded successfully', 
+        certificationImage: user.certifications, 
+        resumeFile: user.resume
+      });
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send('Server error');
+    }
+  };
+
+
+  
+router.post('/upload-files', (req, res) => {
+    uploadCertAndResume(req, res, async (err) => {
         if (err) {
             return res.status(400).json({ msg: err });
         }
 
-        if (req.file == undefined) {
-            return res.status(400).json({ msg: 'No file selected' });
+        if (!req.files || (!req.files.certification && !req.files.resume)) {
+            return res.status(400).json({ msg: 'No files selected' });
         }
 
-        await uploadResume(req, res);
+        await uploadFiles(req, res);
     });
 });
 
-
 router.post('/experience', [
     check('experience', 'Experience details are required').isArray().notEmpty(),
-    check('experience.*.title', 'Title is required').not().isEmpty(),
+    check('experience.*.designation', 'designation is required').not().isEmpty(),
     check('experience.*.company', 'Company is required').not().isEmpty(),
     check('experience.*.location', 'Location is required').not().isEmpty(),
     check('experience.*.startDate', 'Start date is required').isISO8601(),
@@ -236,12 +234,6 @@ router.post('/languages',[
     check('languages.*.proficiency', 'Proficiency level is required').not().isEmpty(),
 ], updateLanguages);
 
-// @route   PUT /profile/certifications
-// @desc    Update certifications
-// @access  Private
-router.post('/certifications',  [
-    check('certifications', 'Certifications are required').isArray().notEmpty(),
-], updateCertifications);
 
 
 router.post('/education', [
@@ -252,10 +244,21 @@ router.post('/education', [
     check('education.*.startDate', 'Start date is required').isISO8601(),
 ], updateEducation);
 
-  router.post('/personal-details', [
-    auth
-], personalDetail);
 
+router.post('/personal-details', (req, res) => {
+    upload(req, res, async (err) => {
+        console.log(req.file)
+        if (err) {
+            return res.status(400).json({ msg: err });
+        }
+        console.log(req.file)
+        if (req.file == undefined) {
+            return res.status(400).json({ msg: 'No file selected' });
+        }
+
+        await personalDetail(req, res);
+    });
+});
 
 
   
