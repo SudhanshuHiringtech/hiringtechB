@@ -17,6 +17,7 @@ const generateOTP = () => {
 
 // Send OTP
 const sendOTPEmail = (email, otp) => {
+  console.log("dekh bhai")
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
@@ -52,7 +53,7 @@ router.post('/forgot-password', async (req, res) => {
         user.otpExpires = new Date(otpExpiry);
         await user.save();
         await sendOTPEmail(email, otp);
-
+       
         // // Send OTP via email
         // const mailOptions = {
         //     to: user.email,
@@ -71,7 +72,7 @@ router.post('/forgot-password', async (req, res) => {
 
 
 // Verify OTP and change password
-router.post('/verify-otp', async (req, res) => {
+router.post('/forget-password-verify-otp', async (req, res) => {
     const { email, otp, newPassword } = req.body;
     try {
         const user = await User.findOne({ email });
@@ -86,11 +87,8 @@ router.post('/verify-otp', async (req, res) => {
 
         // Reset OTP fields
         user.otp = undefined;
-       // user.otpExpires = undefined;
-
-        // Update password
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(newPassword, salt);
+        user.password =  newPassword
+        console.log(user.password)
         await user.save();
 
         res.status(200).json({ message: 'Password changed successfully' });
@@ -102,5 +100,32 @@ router.post('/verify-otp', async (req, res) => {
 router.get('/forget', (req, res) => {
     res.send('Hello Home!');
   });
+
+ 
+// Verify OTP and change password
+router.post('/change-password', async (req, res) => {
+  const { id, oldPassword, newPassword } = req.body;
+  console.log(id)
+  console.log(oldPassword, "fvcf", newPassword)
+  try {
+      const user = await User.findById(id);
+      if (!user) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+      const salt = await bcrypt.genSalt(10);
+      const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+      if (!isMatch) {
+        return res.status(400).json({ msg: 'Your old password does not match' });
+      }
+      user.password = newPassword
+      await user.save();
+
+      res.status(200).json({ message: 'Password changed successfully' });
+  } catch (err) {
+      res.status(500).json({ error: err.message });
+  }
+});
+
 
   module.exports = router;

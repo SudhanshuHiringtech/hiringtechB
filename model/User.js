@@ -74,9 +74,11 @@ const UserSchema = new mongoose.Schema({
   lastName: {
     type: String,
   },
-  profileImage: {
-    type: String, // Store the path to the uploaded image
+  name: {
+    type: String,
   },
+  profileImage: 
+    { type: String },
   googleId:{
     type : String
   },

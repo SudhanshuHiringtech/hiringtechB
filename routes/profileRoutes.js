@@ -33,7 +33,7 @@ const personalDetail = async (req, res) => {
       if (DOB) user.DOB = DOB;
       if (totalExperience) user.totalExperience = totalExperience;
       if (req.file) user.profileImage = req.file.path; // Save the file path
-  
+      //if(profileImage) user.profileImage = profileImage
       await user.save();
   
       res.json({ msg: 'Personal details updated successfully', user });
@@ -127,10 +127,10 @@ const updateLanguages = async (req, res) => {
 
 // Function to update experience
 const updateExperience = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
+    // const errors = validationResult(req);
+    // if (!errors.isEmpty()) {
+    //     return res.status(400).json({ errors: errors.array() });
+    // }
 
     const {id, experience } = req.body;
 

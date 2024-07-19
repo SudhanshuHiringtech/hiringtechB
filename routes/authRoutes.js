@@ -206,7 +206,7 @@ const GetallUsers = async (req, res) => {
 
 const profileDetail = async (req, res) => {
   const { email} = req.body;
- 
+ console.log(req.body)
   try {
     let user = await User.findOne({ email });
 

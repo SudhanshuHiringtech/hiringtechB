@@ -1,30 +1,46 @@
 const mongoose = require('mongoose');
 
+
+
 // Define the Job Post Schema
+
+const questionSchema = new mongoose.Schema({
+  questionId: { type: String, required: true},
+  question: { type: String},
+  answer: { type: String}
+});
+
+
 const jobPostSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: { type: String, required: true },
+  jobTitle: { type: String, required: true },
+  jobDescription: { type: String, required: true },
   company: { type: String, required: true },
-  jobType : {type: String},
-  jobStatus: { type: String, required: true},
-  workMode: { type: String, required: true},
+  jobType: { type: String },
+  jobStatus: { type: String, required: true },
+  workMode: { type: String},
   location: { type: String, required: true },
-  numberOfOpening : { type: String, required:true},
-  salary: { type: Number, required: true },
+  numberOfOpenings: { type: Number, required: true },
   postedDate: { type: Date, default: Date.now },
-  applicationDeadline: { type: Date, required: true },
-  skillsRequired: [String],
-  minExperienceRequired: Number,
-  maxExperienceRequired: Number,
-  applications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Application' }]
+  closedDeadline: { type: Date, required: true },
+  skillsRequired: [{ type: String }],
+  salaryYearlyOrMonthly: { type: String, required: true },
+  incentivesAndPerks: [{ type: String }],
+  benefits: [{ type: String }],
+  minPay:{type: String},
+  maxPay: {type: String},
+  workingHours : [{type : String}],
+  experienceRequired: { type: String },
+  applications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Application' }],
+  questions: [questionSchema] // Add the questions array
 });
 
 // Define the Candidate Application Schema
 const candidateApplicationSchema = new mongoose.Schema({
   jobPost: { type: mongoose.Schema.Types.ObjectId, ref: 'JobPost', required: true },
   candidateName: { type: String, required: true },
-  candidateId : {type: mongoose.Schema.Types.ObjectId, required: true},
-  candidateEmail: { type: String, required: true },
+  candidateId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  candidateEmail: { type: String, required: true,  unique: true },
+  candidateProfileStatus: { type: String, required: true },
   resume: { type: String, required: true }, // URL or path to the resume file
   coverLetter: { type: String },
   appliedDate: { type: Date, default: Date.now }

@@ -49,7 +49,7 @@ router.get('/jobs/internship', async (req, res) => {
 
 router.get('/jobs/fulltime', async (req, res) => {
   try {
-    const internships = await JobPost.find({ jobType: 'fulltime' });
+    const internships = await JobPost.find({ jobType: 'Full-time' });
     res.json(internships);
   } catch (err) {
     res.status(500).json({ message: err.message });
