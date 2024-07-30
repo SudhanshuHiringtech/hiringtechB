@@ -78,4 +78,22 @@ router.get('/appliedjobs/:candidateId', async (req, res) => {
   }
 });
 
+
+// Fetch jobs based on status
+router.get('/jobstatus', async (req, res) => {
+  const status = req.query.status;
+
+  // Validate the status parameter
+  if (!status || (status !== 'open' && status !== 'closed')) {
+    return res.status(400).json({ error: 'Invalid status parameter. Use "open" or "closed".' });
+  }
+
+  try {
+    const jobs = await JobPost.find({ jobStatus: status });
+    res.status(200).json(jobs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

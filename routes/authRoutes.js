@@ -213,8 +213,19 @@ const profileDetail = async (req, res) => {
     if (!user) {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
+    const base64Image = user.profileImage.data.toString('base64');
 
-    res.status(200).json({ msg: 'Email successfully', user });
+      // Include the base64-encoded image in the response
+      res.status(200).json({
+        msg: 'Email successfully found',
+        user: {
+          ...user.toObject(),
+          profileImage: {
+            ...user.profileImage,
+            data: base64Image
+          }
+        }
+      });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');

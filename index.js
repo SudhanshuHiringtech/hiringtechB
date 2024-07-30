@@ -19,6 +19,7 @@ const jobApplyRoutes = require('./routes/jobApplyRoutes');
 const filterjobsRoutes = require('./routes/filterjobsRoutes');
 const resetPassword = require('./routes/resetPassword');
 const notificationRoutes =  require('./routes/notificationRoutes');
+const JobUpdateRoutes = require('./routes/JobUpdateRoutes');
 
 const server = http.createServer(app);
 const io = socketIo(server);
@@ -62,6 +63,7 @@ app.use(jobPostRoutes);
 app.use(jobApplyRoutes);
 app.use(filterjobsRoutes);
 app.use(resetPassword);
+app.use(JobUpdateRoutes);
 
 // Middleware to inject io instance into requests
 app.use((req, res, next) => {

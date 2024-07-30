@@ -32,7 +32,14 @@ const personalDetail = async (req, res) => {
       if (currentLocation) user.currentLocation = currentLocation;
       if (DOB) user.DOB = DOB;
       if (totalExperience) user.totalExperience = totalExperience;
-      if (req.file) user.profileImage = req.file.path; // Save the file path
+      if (req.file) {
+        user.profileImage = {
+          data: fs.readFileSync(req.file.path),
+          contentType: req.file.mimetype,
+          path: req.file.path
+        };
+      }; // Save the file path
+      console.log("check", req.body)
       //if(profileImage) user.profileImage = profileImage
       await user.save();
   

@@ -67,6 +67,7 @@ const ExperienceSchema = new mongoose.Schema({
 });
 
 
+
 const UserSchema = new mongoose.Schema({
   firstName: {
     type: String,
@@ -77,8 +78,11 @@ const UserSchema = new mongoose.Schema({
   name: {
     type: String,
   },
-  profileImage: 
-    { type: String },
+  profileImage: {
+    data: Buffer,
+    contentType: String,
+    path: String // Add this field to store the path of the uploaded image
+  },
   googleId:{
     type : String
   },
