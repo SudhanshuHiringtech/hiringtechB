@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 // Define the Job Post Schema
 
 const questionSchema = new mongoose.Schema({
+  _id:{type: String,},
   questionId: { type: String, required: true},
   question: { type: String},
   answer: { type: String}
@@ -30,7 +31,7 @@ const jobPostSchema = new mongoose.Schema({
   maxPay: {type: String},
   workingHours : [{type : String}],
   experienceRequired: { type: String },
-  applications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Application' }],
+  applications: [{ type: mongoose.Schema.Types.ObjectId,   unique: true, ref: 'Application' }],
   questions: [questionSchema] // Add the questions array
 });
 
@@ -46,12 +47,21 @@ const candidateApplicationSchema = new mongoose.Schema({
   appliedDate: { type: Date, default: Date.now }
 });
 
+const invitedPeopleSchema = new mongoose.Schema({
+  ownId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  invitedPersonId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  invitedPersonName: { type: String, required: true },
+  invitedPersonEmail: { type: String, required: true, unique: true },
+  invitedPersonProfileStatus: { type: String, required: true },
+});
 // Create Models
 const JobPost = mongoose.model('JobPost', jobPostSchema);
 const Application = mongoose.model('Application', candidateApplicationSchema);
 
+const InvitedPeople = mongoose.model('InvitedPeople', invitedPeopleSchema);
 // Export Models
 module.exports = {
   JobPost,
-  Application
+  Application,
+  InvitedPeople
 };

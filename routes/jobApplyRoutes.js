@@ -96,4 +96,35 @@ router.get('/jobstatus', async (req, res) => {
   }
 });
 
+
+// Status candidate who applied on job 
+router.post('/candidate-job-status/:id', async (req, res) => {
+    const { id } = req.params;
+    const { candidateProfileStatus } = req.body;
+    // console.log(id)
+    // console.log(candidateProfileStatus)
+  
+    if (!candidateProfileStatus) {
+      return res.status(400).json({ error: 'Candidate Job Status is required' });
+    }
+  
+    try {
+      const application = await Application.findById(id);
+      
+      if (!application) {
+        return res.status(404).json({ error: 'Candidate not found' });
+      }
+  
+      application.candidateProfileStatus = candidateProfileStatus;
+      await application.save();
+  
+      res.json(application);
+    } catch (error) {
+      res.status(500).json({ error: 'An error occurred while updating the job status' });
+    }
+  });
+
+
+
+
 module.exports = router;

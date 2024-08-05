@@ -79,8 +79,8 @@ const UserSchema = new mongoose.Schema({
     type: String,
   },
   profileImage: {
-    data: Buffer,
-    contentType: String,
+    // data: Buffer,
+    // contentType: String,
     path: String // Add this field to store the path of the uploaded image
   },
   googleId:{

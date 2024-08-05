@@ -34,9 +34,9 @@ const personalDetail = async (req, res) => {
       if (totalExperience) user.totalExperience = totalExperience;
       if (req.file) {
         user.profileImage = {
-          data: fs.readFileSync(req.file.path),
-          contentType: req.file.mimetype,
-          path: req.file.path
+        //   data: fs.readFileSync(req.file.path),
+        //   contentType: req.file.mimetype,
+        path: `uploads/${req.file.filename}`.replace(/\\/g, '/')  
         };
       }; // Save the file path
       console.log("check", req.body)

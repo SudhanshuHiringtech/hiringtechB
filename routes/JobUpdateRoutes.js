@@ -2,6 +2,30 @@ const express = require('express');
 const router = express.Router();
 const { JobPost } = require('../model/JobPostSchema');
 
+// Update Job 
+router.post('/job-update/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedJobPost = await JobPost.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+    console.log("DSD", req.body, "d", id)
+    if (!updatedJobPost) {
+      return res.status(404).send({ message: 'Job post not found' });
+    }
+    
+    res.send(updatedJobPost);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+
+
+
+
+
+
+
+
 // Create a Job Post
 router.post('/jobstatus/:id', async (req, res) => {
     const { id } = req.params;
