@@ -34,10 +34,6 @@ app.use(cors());
 
 connectDB();
 
-// Middleware to parse JSON
-
-// // Set up view engine
-
 app.use(session({
   secret: process.env.SESSION_SECRET || 'sector123',
   resave: false,
