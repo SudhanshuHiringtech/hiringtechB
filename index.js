@@ -72,11 +72,6 @@ app.use(JobUpdateRoutes);
 app.use(chatRoutes);
 app.use(InivitedPeopleRoutes);
 
-// // Middleware to inject io instance into requests
-// app.use((req, res, next) => {
-//   req.io = io;
-//   next();
-// });
 
 app.use('/notifications', notificationRoutes);
 
