@@ -7,22 +7,20 @@ const User = require('../model/User'); // Ensure you have this
 // Fetch chat history between two users
 router.get('/history/:senderId/:receiverId', async (req, res) => {
   const { senderId, receiverId } = req.params;
-  console.log(senderId, "FS", receiverId)
+  console.log(senderId, "FS", receiverId);
   try {
     const messages = await Message.find({
       $or: [
         { sender: senderId, receiver: receiverId },
         { sender: receiverId, receiver: senderId }
       ]
-    }).sort({ createdAt: 1 }); // Sort messages by creation time
+    }).sort({ createdAt: 1 }); // Make sure 'createdAt' matches your schema
     res.json(messages);
   } catch (error) {
+    console.error('Failed to fetch chat history:', error);
     res.status(500).json({ error: 'Failed to fetch chat history' });
   }
 });
-
-
-
 
 // Endpoint to get only unread messages
 router.get('/unread-messages/:userId', async (req, res) => {
@@ -30,7 +28,7 @@ router.get('/unread-messages/:userId', async (req, res) => {
     const userId = new mongoose.Types.ObjectId(req.params.userId);
     const unreadMessages = await Message.aggregate([
       { $match: { receiver: userId, read: false } },
-      { $sort: { timestamp: -1 } },
+      { $sort: { timestamp: -1 } }, // Ensure 'timestamp' matches your schema
       {
         $group: {
           _id: "$sender",
@@ -39,7 +37,7 @@ router.get('/unread-messages/:userId', async (req, res) => {
       },
       {
         $lookup: {
-          from: 'users', // Assuming your users collection is named 'users'
+          from: 'users', // Ensure this collection name is correct
           localField: '_id',
           foreignField: '_id',
           as: 'user'
@@ -58,7 +56,7 @@ router.get('/unread-messages/:userId', async (req, res) => {
     res.json(unreadMessages);
   } catch (error) {
     console.error('Error fetching unread messages:', error);
-    res.status(500).send('Server error');
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
@@ -77,7 +75,7 @@ router.get('/unique-messagers/:userId', async (req, res) => {
           ]
         }
       },
-      { $sort: { timestamp: -1 } },
+      { $sort: { timestamp: -1 } }, // Ensure 'timestamp' matches your schema
       {
         $group: {
           _id: {
@@ -92,7 +90,7 @@ router.get('/unique-messagers/:userId', async (req, res) => {
       },
       {
         $lookup: {
-          from: 'users',
+          from: 'users', // Ensure this collection name is correct
           localField: '_id',
           foreignField: '_id',
           as: 'user'
@@ -142,7 +140,5 @@ router.patch('/messages/:messageId/read', async (req, res) => {
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
-
-
 
 module.exports = router;
