@@ -8,12 +8,14 @@ const questionSchema = new mongoose.Schema({
   _id:{type: String,},
   questionId: { type: String, required: true},
   question: { type: String},
-  answer: { type: String}
+  answer: { type: String},
+  answerText: {type: String},
 });
 
 
 const jobPostSchema = new mongoose.Schema({
   jobTitle: { type: String, required: true },
+  recruiterId: { type: mongoose.Schema.Types.ObjectId, required: true },
   jobDescription: { type: String, required: true },
   company: { type: String, required: true },
   jobType: { type: String },
@@ -35,16 +37,17 @@ const jobPostSchema = new mongoose.Schema({
   questions: [questionSchema] // Add the questions array
 });
 
-// Define the Candidate Application Schema
+/// Define the Candidate Application Schema
 const candidateApplicationSchema = new mongoose.Schema({
   jobPost: { type: mongoose.Schema.Types.ObjectId, ref: 'JobPost', required: true },
   candidateName: { type: String, required: true },
   candidateId: { type: mongoose.Schema.Types.ObjectId, required: true },
-  candidateEmail: { type: String, required: true,  unique: true },
+  candidateEmail: { type: String, required: true },
   candidateProfileStatus: { type: String, required: true },
   resume: { type: String, required: true }, // URL or path to the resume file
   coverLetter: { type: String },
-  appliedDate: { type: Date, default: Date.now }
+  appliedDate: { type: Date, default: Date.now },
+  questions: [questionSchema] // Candidate's answers to the job post questions
 });
 
 const invitedPeopleSchema = new mongoose.Schema({
