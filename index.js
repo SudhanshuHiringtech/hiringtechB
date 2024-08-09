@@ -87,7 +87,7 @@ io.on('connection', (socket) => {
       console.log('Message saved to database:', newMessage);
       //console.log('Message saved to database:', newMessage);
       io.to(receiverId).emit('receiveMessage', newMessage);
-      io.to(senderId).emit('receiveMessage', newMessage); // Emit to sender as well
+    //  io.to(senderId).emit('receiveMessage', newMessage); // Emit to sender as well
      
     } catch (error) {
       console.error('Error saving message to database:', error);
@@ -112,9 +112,6 @@ io.on('connection', (socket) => {
     }
   });
 });
-
-
-
 
 
 const PORT = process.env.PORT || 5000;
