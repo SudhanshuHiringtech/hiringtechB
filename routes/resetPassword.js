@@ -3,7 +3,9 @@ const bcrypt = require('bcrypt');
 const User = require('../model/User');
 const nodemailer = require('nodemailer');
 const passport = require('passport');
-
+const { JobPost, Application } = require('../model/JobPostSchema');
+const Message = require('../model/MessageSchema');
+const Notification = require('../model/Notification');
 
 
 const router = express.Router();
@@ -96,11 +98,6 @@ router.post('/forget-password-verify-otp', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-
-router.get('/forget', (req, res) => {
-    res.send('Hello Home!');
-  });
-
  
 // Verify OTP and change password
 router.post('/change-password', async (req, res) => {
@@ -127,5 +124,43 @@ router.post('/change-password', async (req, res) => {
   }
 });
 
+
+
+// Delete full account totally from database
+router.delete('/delete-account/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    // Delete the user
+    const userDeleted = await User.findByIdAndDelete(userId);
+
+    if (!userDeleted) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Delete related data
+    //const jobPostDelete = await jobPost.deleteMany({userId});
+    const applicationsDeleted = await Application.deleteMany({candidateId: userId});
+    // console.log(application);
+    // console.log(applicationsDeleted)
+     const messagesDeleted = await Message.deleteMany({
+      $or: [{ sender: userId }, { receiver: userId }]
+    }); 
+    const notificationsDeleted = await Notification.deleteMany({ userId });
+   // console.log(applicationsDeleted)
+    res.status(200).json({
+      message: 'User and related data deleted successfully.',
+      details: {
+        userDeleted,
+      //  jobPostDelete,
+        applicationsDeleted,
+        messagesDeleted,
+        notificationsDeleted,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting account.', error: error.message });
+  }
+});
 
   module.exports = router;

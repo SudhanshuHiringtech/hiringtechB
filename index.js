@@ -18,10 +18,11 @@ const jobPostRoutes = require('./routes/jobPostRoutes');
 const jobApplyRoutes = require('./routes/jobApplyRoutes');
 const filterjobsRoutes = require('./routes/filterjobsRoutes');
 const resetPassword = require('./routes/resetPassword');
-const notificationRoutes =  require('./routes/notificationRoutes');
+
 const JobUpdateRoutes = require('./routes/JobUpdateRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const InivitedPeopleRoutes =  require('./routes/InvitedPeopleRoutes')
+const Notification = require('./model/Notification');
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -68,11 +69,36 @@ app.use(JobUpdateRoutes);
 app.use(chatRoutes);
 app.use(InivitedPeopleRoutes);
 
+const getUnreadNotifications = async (userId) => {
+  try {
+    const notifications = await Notification.find({ userId, isRead: false }).exec();
+    return notifications;
+  } catch (error) {
+    console.error('Error fetching unread notifications:', error);
+    throw error;
+  }
+};
+const getNotificationsByUserId = async (userId) => {
+  try {
+    const notifications = await Notification.find({ userId }).exec();
+    console.log(notifications)
+    return notifications;
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    throw error;
+  }
+};
 
-app.use('/notifications', notificationRoutes);
 
+//app.use('/notifications', notificationRoutes);
+
+
+// Create namespaces for chat and notifications
+const chatNamespace = io.of('/chat');
+const connectedUsers = {};
+const notificationNamespace = io.of('/notifications');
 // Socket.io connection handling
-io.on('connection', (socket) => {
+chatNamespace.on('connection', (socket) => {
   console.log('A user connected');
 
   socket.on('disconnect', () => {
@@ -86,8 +112,8 @@ io.on('connection', (socket) => {
       await newMessage.save();
       console.log('Message saved to database:', newMessage);
       //console.log('Message saved to database:', newMessage);
-      io.to(receiverId).emit('receiveMessage', newMessage);
-      io.to(senderId).emit('receiveMessage', newMessage); // Emit to sender as well
+      chatNamespace.to(receiverId).emit('receiveMessage', newMessage);
+      chatNamespace.to(senderId).emit('receiveMessage', newMessage); // Emit to sender as well
      
     } catch (error) {
       console.error('Error saving message to database:', error);
@@ -113,6 +139,53 @@ io.on('connection', (socket) => {
   });
 });
 
+
+
+// Listen for client connections
+notificationNamespace.on('connection', (socket) => {
+  console.log('A user connected Notification');
+
+  // When a user connects, store their socket ID
+  const userId = socket.handshake.query.userId;
+  connectedUsers[userId] = socket.id;
+
+  // Handle sending notifications to multiple users
+  socket.on('sendNotification', async (data) => {
+    const { userIds, message } = data; // Expecting an array of user IDs
+
+    // Save the notification to MongoDB for each user
+    userIds.forEach(async (userId) => {
+      const newNotification = new Notification({ userId, message });
+      await newNotification.save();
+
+      // Find the socket ID of the recipient
+      const recipientSocketId = connectedUsers[userId];
+      
+      if (recipientSocketId) {
+        // Emit the notification only to the specific user
+        notificationNamespace.to(recipientSocketId).emit('receiveNotification', newNotification);
+        
+      } else {
+        console.log(`User ${userId} is not connected`);
+      }
+    });
+  });
+
+    // Handle fetching notifications
+    socket.on('fetchNotifications', async () => {
+      try {
+        const notifications = await getNotificationsByUserId(userId);
+        socket.emit('notifications', notifications);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    });
+
+  socket.on('disconnect', () => {
+    console.log('A user notification disconnected');
+    delete connectedUsers[userId]; // Remove the user from the connected list
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {

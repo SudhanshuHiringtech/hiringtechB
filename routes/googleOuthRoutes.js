@@ -1,37 +1,35 @@
-// const express = require('express');
-// const router = express();
-// const passport = require('passport'); 
-// require('../config/passport-setup');
 
-// router.use(passport.initialize()); 
-// router.use(passport.session());
+// // routes/auth.js
+// const router = require('express').Router();
+// const passport = require('passport');
+// const { loadAuth, successGoogleLogin, failureGoogleLogin } = require('../controller/userController');
 
-// const userController = require('../controller/userController');
+// // Load auth page
+// router.get('/', loadAuth);
 
-// router.get('/', userController.loadAuth);
-
-// // Auth 
-// router.get('/auth/google' , passport.authenticate('google', { scope: 
-// 	[ 'email', 'profile' ] 
-// })); 
-
-// // Auth Callback 
-// router.get( '/auth/google/callback', 
-// 	passport.authenticate( 'google', { 
-// 		successRedirect: '/success', 
-// 		failureRedirect: '/failure'
+// // Auth with Google
+// router.get('/auth/google', passport.authenticate('google', {
+//   scope: ['profile', 'email'],
 // }));
 
-// // Success 
-// router.get('/success' , userController.successGoogleLogin); 
+// // Google auth callback
+// router.get('/auth/google/callback', 
+//   passport.authenticate('google', { failureRedirect: '/auth/failure' }), 
+//   successGoogleLogin
+// );
 
-// // failure 
-// router.get('/failure' , userController.failureGoogleLogin);
+// // Auth failure
+// router.get('/failure', failureGoogleLogin);
 
-// module.exports = router;\\\
+// // Logout
+// // router.get('/logout', (req, res) => {
+// //   req.logout();
+// //   res.redirect('/');
+// // });
+
+// module.exports = router;
 
 
-// routes/auth.js
 const router = require('express').Router();
 const passport = require('passport');
 const { loadAuth, successGoogleLogin, failureGoogleLogin } = require('../controller/userController');
@@ -41,22 +39,16 @@ router.get('/', loadAuth);
 
 // Auth with Google
 router.get('/auth/google', passport.authenticate('google', {
-  scope: ['profile', 'email'],
+    scope: ['profile', 'email'],
 }));
 
 // Google auth callback
 router.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/auth/failure' }), 
-  successGoogleLogin
+    passport.authenticate('google', { failureRedirect: '/failure' }), 
+    successGoogleLogin
 );
 
 // Auth failure
 router.get('/failure', failureGoogleLogin);
-
-// Logout
-// router.get('/logout', (req, res) => {
-//   req.logout();
-//   res.redirect('/');
-// });
 
 module.exports = router;
