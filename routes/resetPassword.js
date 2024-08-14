@@ -125,34 +125,41 @@ router.post('/change-password', async (req, res) => {
 });
 
 
-
 // Delete full account totally from database
+
 router.delete('/delete-account/:userId', async (req, res) => {
   const { userId } = req.params;
+  const { password } = req.body; // Assuming password is sent in the request body
 
   try {
-    // Delete the user
-    const userDeleted = await User.findByIdAndDelete(userId);
+    // Find the user by ID
+    const user = await User.findById(userId);
 
-    if (!userDeleted) {
+    if (!user) {
       return res.status(404).json({ message: 'User not found.' });
     }
 
+    // Check if the password matches
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ message: 'Incorrect password.' });
+    }
+
+    // Proceed with deleting the user and related data
+    const userDeleted = await User.findByIdAndDelete(userId);
+
     // Delete related data
-    //const jobPostDelete = await jobPost.deleteMany({userId});
-    const applicationsDeleted = await Application.deleteMany({candidateId: userId});
-    // console.log(application);
-    // console.log(applicationsDeleted)
-     const messagesDeleted = await Message.deleteMany({
+    const applicationsDeleted = await Application.deleteMany({ candidateId: userId });
+    const messagesDeleted = await Message.deleteMany({
       $or: [{ sender: userId }, { receiver: userId }]
-    }); 
+    });
     const notificationsDeleted = await Notification.deleteMany({ userId });
-   // console.log(applicationsDeleted)
+
     res.status(200).json({
       message: 'User and related data deleted successfully.',
       details: {
         userDeleted,
-      //  jobPostDelete,
         applicationsDeleted,
         messagesDeleted,
         notificationsDeleted,
