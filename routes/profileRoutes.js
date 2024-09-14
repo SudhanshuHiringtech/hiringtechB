@@ -12,9 +12,8 @@ const fs = require('fs');
 
 const router = express.Router();
 
-
 const personalDetail = async (req, res) => {
-    console.log("Hello")
+    console.log("Hello");
     const { id, name, email, mobileNumber, gender, currentLocation, DOB, totalExperience } = req.body;
   
     try {
@@ -32,29 +31,30 @@ const personalDetail = async (req, res) => {
       if (currentLocation) user.currentLocation = currentLocation;
       if (DOB) user.DOB = DOB;
       if (totalExperience) user.totalExperience = totalExperience;
+  
+      // If an image is uploaded, update profileImage
       if (req.file) {
         user.profileImage = {
-        //   data: fs.readFileSync(req.file.path),
-        //   contentType: req.file.mimetype,
-        path: `uploads/${req.file.filename}`.replace(/\\/g, '/')  
+          path: `uploads/${req.file.filename}`.replace(/\\/g, '/')  // Save the file path
         };
-      }; // Save the file path
-      console.log("check", req.body)
-      //if(profileImage) user.profileImage = profileImage
+      }
+  
+      //console.log("check", req.body);
+      
       await user.save();
   
       res.json({ msg: 'Personal details updated successfully', user });
     } catch (error) {
-        console.error(error.message);
-        res.status(500).send('Server error');
+      console.error(error.message);
+      res.status(500).send('Server error');
     }
   };
-
-
+  
 
 
 // Function to update education details
 const updateEducation = async (req, res) => {
+    console.log("Education")
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -71,7 +71,7 @@ const updateEducation = async (req, res) => {
 
         // Update the education field with the new education array
         user.education = education;
-
+        console.log(user.education);
         await user.save();
 
         res.json({ msg: 'Education details updated successfully', education: user.education });
@@ -259,6 +259,7 @@ router.post('/personal-details', (req, res) => {
             return res.status(400).json({ msg: err });
         }
         console.log(req.file)
+        console.log(req.body)
         if (req.file == undefined) {
             return res.status(400).json({ msg: 'No file selected' });
         }

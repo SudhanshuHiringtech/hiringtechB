@@ -7,7 +7,7 @@ const User = require('../model/User'); // Ensure you have this
 // Fetch chat history between two users
 router.get('/history/:senderId/:receiverId', async (req, res) => {
   const { senderId, receiverId } = req.params;
-  console.log(senderId, "FS", receiverId);
+  //console.log(senderId, "FS", receiverId);
   try {
     const messages = await Message.find({
       $or: [

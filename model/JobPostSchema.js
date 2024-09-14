@@ -24,7 +24,7 @@ const jobPostSchema = new mongoose.Schema({
   location: { type: String, required: true },
   numberOfOpenings: { type: Number, required: true },
   postedDate: { type: Date, default: Date.now },
-  closedDeadline: { type: Date, required: true },
+  closedDeadline: { type: String, required: true },
   skillsRequired: [{ type: String }],
   salaryYearlyOrMonthly: { type: String, required: true },
   incentivesAndPerks: [{ type: String }],
@@ -44,7 +44,7 @@ const candidateApplicationSchema = new mongoose.Schema({
   candidateId: { type: mongoose.Schema.Types.ObjectId, required: true },
   candidateEmail: { type: String, required: true },
   candidateProfileStatus: { type: String, required: true },
-  resume: { type: String, required: true }, // URL or path to the resume file
+ // resume: { type: String, required: true }, // URL or path to the resume file
   coverLetter: { type: String },
   appliedDate: { type: Date, default: Date.now },
   questions: [questionSchema] // Candidate's answers to the job post questions

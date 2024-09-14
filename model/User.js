@@ -81,8 +81,13 @@ const UserSchema = new mongoose.Schema({
   profileImage: {
     // data: Buffer,
     // contentType: String,
-    path: String // Add this field to store the path of the uploaded image
-  },
+    //required: false,  // This makes profileImage optional
+    path : String,
+    // path: {
+    //   type: String,
+    //   required: false,  // This makes profileImage optional
+    // }
+    },
   googleId:{
     type : String
   },

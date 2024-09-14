@@ -6,6 +6,7 @@ const { JobPost, Application } = require('../model/JobPostSchema');
 router.post('/apply-job', async (req, res) => {
   try {
     const application = new Application(req.body);
+    console.log("SD", req.body);
     await application.save();
     await JobPost.findByIdAndUpdate(application.jobPost, { $push: { applications: application._id } });
     res.status(201).send(application);

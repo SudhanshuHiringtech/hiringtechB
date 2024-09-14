@@ -99,10 +99,10 @@ const connectedUsers = {};
 const notificationNamespace = io.of('/notifications');
 // Socket.io connection handling
 chatNamespace.on('connection', (socket) => {
-  console.log('A user connected');
+  console.log('A user chats connected');
 
   socket.on('disconnect', () => {
-    console.log('User disconnected');
+    console.log('User chats disconnected');
   });
 
   socket.on('sendMessage', async ({ senderId, receiverId, message }) => {
@@ -111,7 +111,7 @@ chatNamespace.on('connection', (socket) => {
       const newMessage = new Message({ sender: senderId, receiver: receiverId, message});
       await newMessage.save();
       console.log('Message saved to database:', newMessage);
-      //console.log('Message saved to database:', newMessage);
+      console.log('Message saved to database:', newMessage);
       chatNamespace.to(receiverId).emit('receiveMessage', newMessage);
       chatNamespace.to(senderId).emit('receiveMessage', newMessage); // Emit to sender as well
      
