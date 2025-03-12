@@ -65,7 +65,6 @@ const registerRecruiter = async (req, res) => {
     await user.save();
     console.log(otp);
     await sendOTPEmail(email, otp);
-
     res.status(200).json({ msg: 'OTP sent to your email' });
   } catch (err) {
     console.log("You have error", err.message);
